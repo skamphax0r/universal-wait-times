@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Universal Parks Wait Times Display Box</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Orbitron:wght@500;700;900&family=Press+Start+2P&family=Outfit:wght@400;600;700;800;900&family=Share+Tech+Mono&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Base Theme Colors */
+      --bg-deep: #07090e;
+      --panel-bg: rgba(16, 20, 30, 0.85);
+      --panel-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+
+      /* Active Dynamic Theme Tokens (Default: Wizarding World) */
+      --theme-primary: #d4af37;
+      --theme-secondary: #8b1538;
+      --theme-accent: #f59e0b;
+      --theme-glow: rgba(212, 175, 55, 0.35);
+      --theme-font-head: 'Cinzel', serif;
+      --theme-chassis-bg: linear-gradient(145deg, #1f1a14, #120e0b);
+      --theme-chassis-border: #3d3120;
+      --theme-screen-bg: #0d0a07;
+      --theme-tag-bg: rgba(212, 175, 55, 0.15);
+      --theme-tag-text: #fbd38d;
+    }
+
+    /* THEME 1: THE WIZARDING WORLD OF HARRY POTTER */
+    body.theme-wizard {
+      --theme-primary: #d4af37;
+      --theme-secondary: #8b1538;
+      --theme-accent: #fbbf24;
+      --theme-glow: rgba(212, 175, 55, 0.4);
+      --theme-font-head: 'Cinzel', serif;
+      --theme-chassis-bg: linear-gradient(145deg, #231b14, #120c08);
+      --theme-chassis-border: #4a3823;
+      --theme-screen-bg: #0e0a07;
+      --theme-tag-bg: rgba(212, 175, 55, 0.18);
+      --theme-tag-text: #ffd875;
+    }
+
+    /* THEME 2: MARVEL SUPER HERO ISLAND (MCU) */
+    body.theme-mcu {
+      --theme-primary: #00f0ff;
+      --theme-secondary: #ed1d24;
+      --theme-accent: #e23636;
+      --theme-glow: rgba(0, 240, 255, 0.45);
+      --theme-font-head: 'Orbitron', sans-serif;
+      --theme-chassis-bg: linear-gradient(145deg, #1b212f, #0d121c);
+      --theme-chassis-border: #2a3b5c;
+      --theme-screen-bg: #070c14;
+      --theme-tag-bg: rgba(0, 240, 255, 0.15);
+      --theme-tag-text: #00f0ff;
+    }
+
+    /* THEME 3: SUPER NINTENDO WORLD (MARIO) */
+    body.theme-mario {
+      --theme-primary: #fbd000;
+      --theme-secondary: #e52521;
+      --theme-accent: #00a651;
+      --theme-glow: rgba(251, 208, 0, 0.45);
+      --theme-font-head: 'Press Start 2P', cursive;
+      --theme-chassis-bg: linear-gradient(145deg, #b91c1c, #7f1d1d);
+      --theme-chassis-border: #ef4444;
+      --theme-screen-bg: #0f172a;
+      --theme-tag-bg: rgba(0, 166, 81, 0.25);
+      --theme-tag-text: #4ade80;
+    }
+
+    /* THEME 4: CLASSIC UNIVERSAL STUDIOS GLOBE */
+    body.theme-classic {
+      --theme-primary: #38bdf8;
+      --theme-secondary: #d97706;
+      --theme-accent: #f59e0b;
+      --theme-glow: rgba(56, 189, 248, 0.4);
+      --theme-font-head: 'Outfit', sans-serif;
+      --theme-chassis-bg: linear-gradient(145deg, #1e293b, #0f172a);
+      --theme-chassis-border: #334155;
+      --theme-screen-bg: #090d16;
+      --theme-tag-bg: rgba(56, 189, 248, 0.18);
+      --theme-tag-text: #7dd3fc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text-main);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background 0.4s ease;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(212, 175, 55, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(0, 240, 255, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(229, 37, 33, 0.05) 0%, transparent 50%);
+    }
+
+    /* Ambient background grid */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header Nav */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: rgba(10, 14, 22, 0.85);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      font-size: 28px;
+      line-height: 1;
+      filter: drop-shadow(0 0 10px var(--theme-glow));
+    }
+
+    .brand-text h1 {
+      font-family: var(--theme-font-head);
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #ffffff, var(--theme-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    .brand-text span {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--theme-primary);
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Theme Pill Buttons */
+    .theme-picker {
+      display: flex;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--panel-border);
+      border-radius: 30px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .theme-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .theme-btn:hover {
+      color: #fff;
+    }
+
+    .theme-btn.active {
+      background: var(--theme-primary);
+      color: #000;
+      box-shadow: 0 0 12px var(--theme-glow);
+    }
+
+    /* Park Selector */
+    .park-selector {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--panel-border);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    .park-selector option {
+      background: #111827;
+      color: #fff;
+    }
+
+    /* Mode Toggles */
+    .mode-toggle {
+      display: flex;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 2px;
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--theme-primary);
+      color: #000;
+      box-shadow: 0 0 10px var(--theme-glow);
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--panel-border);
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--theme-primary);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Meta Bar: Live Clock & Stats */
+    .park-meta-bar {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 10px 18px;
+      background: rgba(16, 20, 30, 0.7);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+    }
+
+    .park-clock {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .park-clock:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulseDot 2s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .park-stats {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--text-muted);
+    }
+    .park-stats strong {
+      color: #fff;
+    }
+
+    /* ========================================================
+       1. BOX MODE (The Physical Subscription Clock Simulation)
+       ======================================================== */
+    .box-view-container {
+      width: 100%;
+      max-width: 840px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wait-box-chassis {
+      width: 100%;
+      background: var(--theme-chassis-bg);
+      border: 6px solid var(--theme-chassis-border);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.8),
+        inset 0 2px 4px rgba(255, 255, 255, 0.15),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.6);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .box-screen {
+      background: var(--theme-screen-bg);
+      border-radius: 16px;
+      padding: 28px 24px;
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.95);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 380px;
+      justify-content: space-between;
+    }
+
+    /* Scanline effect */
+    .box-screen::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Progress bar */
+    .box-progress-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      position: relative;
+      z-index: 5;
+    }
+
+    .box-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--theme-primary);
+      box-shadow: 0 0 8px var(--theme-glow);
+      transition: width 0.1s linear;
+    }
+
+    /* Screen Top Info */
+    .screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 5;
+      margin-bottom: 12px;
+    }
+
+    .box-land-tag {
+      font-family: var(--theme-font-head);
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      background: var(--theme-tag-bg);
+      color: var(--theme-tag-text);
+      border: 1px solid var(--theme-primary);
+      border-radius: 20px;
+      font-weight: 700;
+    }
+
+    .box-fav-btn {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .box-fav-btn.is-fav {
+      color: var(--yellow);
+      filter: drop-shadow(0 0 8px var(--yellow));
+    }
+
+    /* Screen Center Attraction & Wait Display */
+    .screen-main {
+      text-align: center;
+      padding: 20px 0;
+      position: relative;
+      z-index: 5;
+    }
+
+    .box-park-subtitle {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .box-ride-title {
+      font-family: var(--theme-font-head);
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      color: #fff;
+      text-shadow: 0 0 15px var(--theme-glow);
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Big Wait Time Digit cluster */
+    .wait-display-cluster {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .wait-digits {
+      font-family: 'Orbitron', monospace;
+      font-size: 6rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--theme-primary);
+      text-shadow: 0 0 25px var(--theme-glow);
+      letter-spacing: -2px;
+    }
+
+    .wait-units-wrapper {
+      text-align: left;
+    }
+    .wait-units {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .wait-status-pill {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--green);
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .wait-status-pill.closed {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--red);
+    }
+
+    /* Screen Footer */
+    .screen-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 14px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Hardware Buttons underneath Chassis */
+    .box-hardware-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .ctrl-btn {
+      background: linear-gradient(145deg, #2a3449, #171d2b);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2);
+      transition: all 0.15s;
+    }
+    .ctrl-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px var(--theme-glow);
+    }
+    .ctrl-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .ctrl-btn.play-pause {
+      width: 58px;
+      height: 58px;
+      background: var(--theme-primary);
+      color: #000;
+      font-size: 1.3rem;
+    }
+
+    .ride-counter {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-left: 12px;
+      min-width: 65px;
+    }
+
+    /* ========================================================
+       2. BOARD MODE (Full Park Tip Board Grid)
+       ======================================================== */
+    .board-view-container {
+      width: 100%;
+      display: none;
+    }
+
+    .board-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 260px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: var(--theme-primary);
+      box-shadow: 0 0 10px var(--theme-glow);
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+    }
+    .filter-pill {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-pill.active {
+      background: var(--theme-primary);
+      color: #000;
+      box-shadow: 0 0 10px var(--theme-glow);
+    }
+
+    .land-section {
+      margin-bottom: 28px;
+    }
+
+    .land-title {
+      font-family: var(--theme-font-head);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--theme-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 14px;
+    }
+
+    .ride-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .ride-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--theme-primary);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-info {
+      flex: 1;
+    }
+    .card-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      line-height: 1.25;
+    }
+    .card-land {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-wait {
+      text-align: right;
+    }
+    .card-digits {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--theme-primary);
+    }
+    .card-digits.closed {
+      color: var(--red);
+      font-size: 1.1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+    }
+    .card-units {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: #111827;
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-header h3 {
+      font-family: var(--theme-font-head);
+      color: var(--theme-primary);
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .setting-label {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .setting-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .setting-control select {
+      background: #1f2937;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.85rem;
+    }
+
+    /* Fullscreen Kiosk Mode */
+    body.is-fullscreen header {
+      display: none;
+    }
+    body.is-fullscreen main {
+      padding: 10px;
+      justify-content: center;
+    }
+    body.is-fullscreen .wait-box-chassis {
+      max-width: 95vw;
+    }
+
+    @media (max-width: 768px) {
+      .box-ride-title {
+        font-size: 1.6rem;
+      }
+      .wait-digits {
+        font-size: 4.5rem;
+      }
+      header {
+        padding: 10px 14px;
+      }
+    }
+  </style>
+</head>
+<body class="theme-wizard">
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1 id="brandTitle">Universal Waits</h1>
+        <span id="brandSubtitle">Live Park Box Edition</span>
+      </div>
+    </a>
+
+    <!-- Theme Switcher Pills -->
+    <div class="theme-picker">
+      <button class="theme-btn active" data-theme="theme-wizard" title="Wizarding World Theme">⚡ Potter</button>
+      <button class="theme-btn" data-theme="theme-mcu" title="Marvel Super Hero Island Theme">🛡️ MCU</button>
+      <button class="theme-btn" data-theme="theme-mario" title="Super Nintendo World Theme">🍄 Mario</button>
+      <button class="theme-btn" data-theme="theme-classic" title="Classic Universal Studios">🌐 Classic</button>
+    </div>
+
+    <div class="header-actions">
+      <!-- Park Selector -->
+      <select id="parkSelect" class="park-selector">
+        <option value="64" selected>Universal's Islands of Adventure</option>
+        <option value="65">Universal Studios Florida</option>
+        <option value="66">Universal Studios Hollywood</option>
+        <option value="284">Universal Studios Japan</option>
+        <option value="334">Universal's Epic Universe</option>
+        <option value="67">Universal's Volcano Bay</option>
+      </select>
+
+      <!-- View Mode Buttons -->
+      <div class="mode-toggle">
+        <button id="modeBoxBtn" class="mode-btn active" title="Smart Clock Box Mode">📦 Box</button>
+        <button id="modeBoardBtn" class="mode-btn" title="Full Park Grid Mode">📋 Board</button>
+      </div>
+
+      <!-- Settings & Fullscreen -->
+      <button id="settingsBtn" class="icon-btn" title="Settings">⚙️</button>
+      <button id="fullscreenBtn" class="icon-btn" title="Toggle Fullscreen Kiosk Mode">⛶</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Park Status & Stats Bar -->
+    <div class="park-meta-bar">
+      <div class="park-clock" id="parkClockBtn" title="Click to configure time zone">
+        <span class="live-dot"></span>
+        <span id="parkClockDisplay">--:--:-- --</span>
+        <span id="parkTimezoneLabel" style="opacity: 0.8; font-size: 11px;">(CST)</span>
+      </div>
+      <div class="park-stats">
+        <div>Open: <strong id="statOpenRides">-</strong> / <span id="statTotalRides">-</span></div>
+        <div>Avg Wait: <strong id="statAvgWait">-</strong> min</div>
+        <div>Max Wait: <strong id="statMaxWait">-</strong> min</div>
+      </div>
+    </div>
+
+    <!-- 1. BOX VIEW (Smart Clock Display) -->
+    <div id="boxView" class="box-view-container">
+      <div class="wait-box-chassis">
+        <div class="box-screen">
+          <!-- Cycle Progress Bar -->
+          <div class="box-progress-container">
+            <div id="boxProgressBar" class="box-progress-fill"></div>
+          </div>
+
+          <!-- Screen Header: Land & Favorite -->
+          <div class="screen-header">
+            <div id="boxLandTag" class="box-land-tag">HOGSMEADE</div>
+            <button id="boxFavBtn" class="box-fav-btn" title="Toggle Favorite">★</button>
+          </div>
+
+          <!-- Main Attraction & Wait Digits -->
+          <div class="screen-main">
+            <div id="boxParkNameDisplay" class="box-park-subtitle">ISLANDS OF ADVENTURE</div>
+            <div id="boxRideTitle" class="box-ride-title">Loading live wait times...</div>
+
+            <div class="wait-display-cluster">
+              <div id="boxWaitNumber" class="wait-digits">--</div>
+              <div class="wait-units-wrapper">
+                <div id="boxWaitUnits" class="wait-units">MIN</div>
+                <div id="boxWaitStatus" class="wait-status-pill">STANDBY</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen Footer -->
+          <div class="screen-footer">
+            <div id="boxLastUpdated">UPDATED: JUST NOW</div>
+            <div id="boxCycleStatus">AUTO-CYCLE ON</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Physical Control Buttons -->
+      <div class="box-hardware-controls">
+        <button id="btnPrev" class="ctrl-btn" title="Previous Ride">◀</button>
+        <button id="btnPlayPause" class="ctrl-btn play-pause" title="Pause / Play Rotation">❚❚</button>
+        <button id="btnNext" class="ctrl-btn" title="Next Ride">▶</button>
+        <div id="rideCounter" class="ride-counter">1 / --</div>
+      </div>
+    </div>
+
+    <!-- 2. BOARD VIEW (Full Grid) -->
+    <div id="boardView" class="board-view-container">
+      <div class="board-toolbar">
+        <input type="text" id="boardSearch" class="search-input" placeholder="🔍 Search attractions, lands, characters...">
+        <div class="filter-pills">
+          <button class="filter-pill active" data-filter="open">Open Only</button>
+          <button class="filter-pill" data-filter="fav">★ Favorites</button>
+          <button class="filter-pill" data-filter="all">All Rides</button>
+        </div>
+      </div>
+      <div id="boardGridContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Box Display Settings</h3>
+        <button id="closeSettingsBtn" class="icon-btn">✕</button>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Display Theme</div>
+          <div class="setting-desc">Universal park aesthetic</div>
+        </div>
+        <div class="setting-control">
+          <select id="settingTheme">
+            <option value="theme-wizard">⚡ Wizarding World (Harry Potter)</option>
+            <option value="theme-mcu">🛡️ Marvel Super Hero Island (MCU)</option>
+            <option value="theme-mario">🍄 Super Nintendo World (Mario)</option>
+            <option value="theme-classic">🌐 Universal Studios Classic</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Clock Time Zone</div>
+          <div class="setting-desc">Time zone displayed on park clock</div>
+        </div>
+        <div class="setting-control">
+          <select id="settingTimezone">
+            <option value="America/Chicago" selected>Central Time (CST/CDT)</option>
+            <option value="America/New_York">Eastern Time (EST/EDT)</option>
+            <option value="America/Denver">Mountain Time (MST/MDT)</option>
+            <option value="America/Los_Angeles">Pacific Time (PST/PDT)</option>
+            <option value="Asia/Tokyo">Japan Time (JST)</option>
+            <option value="park">Park Local Time</option>
+            <option value="local">My Device Time</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Rotation Speed</div>
+          <div class="setting-desc">Seconds before cycling to next ride</div>
+        </div>
+        <div class="setting-control">
+          <select id="settingSpeed">
+            <option value="5">5 Seconds</option>
+            <option value="8" selected>8 Seconds</option>
+            <option value="12">12 Seconds</option>
+            <option value="20">20 Seconds</option>
+            <option value="30">30 Seconds</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Rotation Filter</div>
+          <div class="setting-desc">Which rides cycle in Box Mode</div>
+        </div>
+        <div class="setting-control">
+          <select id="settingFilter">
+            <option value="open" selected>Open Rides Only</option>
+            <option value="fav">★ Starred Favorites Only</option>
+            <option value="all">All Rides</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // App State
+    let currentParkId = 64; // Islands of Adventure default
+    let parks = [];
+    let currentRides = [];
+    let activeRotationRides = [];
+    let currentRideIndex = 0;
+    let isPlaying = true;
+    let rotationSeconds = parseInt(localStorage.getItem('universal_wait_speed') || '8');
+    let rotationProgress = 0;
+    let rotationTimer = null;
+    let progressInterval = null;
+    let parkClockInterval = null;
+    let currentFilter = localStorage.getItem('universal_wait_filter') || 'open';
+    let currentTimezone = localStorage.getItem('universal_wait_timezone') || 'America/Chicago';
+    let currentTheme = localStorage.getItem('universal_wait_theme') || 'theme-wizard';
+    let favorites = JSON.parse(localStorage.getItem('universal_wait_favorites') || '[]');
+
+    // Elements
+    const parkSelect = document.getElementById('parkSelect');
+    const modeBoxBtn = document.getElementById('modeBoxBtn');
+    const modeBoardBtn = document.getElementById('modeBoardBtn');
+    const boxView = document.getElementById('boxView');
+    const boardView = document.getElementById('boardView');
+    const btnPlayPause = document.getElementById('btnPlayPause');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const rideCounter = document.getElementById('rideCounter');
+    const boxProgressBar = document.getElementById('boxProgressBar');
+    const boxLandTag = document.getElementById('boxLandTag');
+    const boxParkNameDisplay = document.getElementById('boxParkNameDisplay');
+    const boxRideTitle = document.getElementById('boxRideTitle');
+    const boxWaitNumber = document.getElementById('boxWaitNumber');
+    const boxWaitUnits = document.getElementById('boxWaitUnits');
+    const boxWaitStatus = document.getElementById('boxWaitStatus');
+    const boxFavBtn = document.getElementById('boxFavBtn');
+    const boxCycleStatus = document.getElementById('boxCycleStatus');
+    const parkClockBtn = document.getElementById('parkClockBtn');
+    const parkClockDisplay = document.getElementById('parkClockDisplay');
+    const parkTimezoneLabel = document.getElementById('parkTimezoneLabel');
+    const statOpenRides = document.getElementById('statOpenRides');
+    const statTotalRides = document.getElementById('statTotalRides');
+    const statAvgWait = document.getElementById('statAvgWait');
+    const statMaxWait = document.getElementById('statMaxWait');
+    const boardGridContainer = document.getElementById('boardGridContainer');
+    const boardSearch = document.getElementById('boardSearch');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const settingTheme = document.getElementById('settingTheme');
+    const settingTimezone = document.getElementById('settingTimezone');
+    const settingSpeed = document.getElementById('settingSpeed');
+    const settingFilter = document.getElementById('settingFilter');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    async function init() {
+      applyTheme(currentTheme);
+      setupEventListeners();
+      await fetchParks();
+      await loadParkData(currentParkId);
+      startParkClock();
+      startRotation();
+
+      // Refresh data every 60s
+      setInterval(() => {
+        loadParkData(currentParkId, true);
+      }, 60000);
+    }
+
+    function applyTheme(themeClass) {
+      currentTheme = themeClass;
+      localStorage.setItem('universal_wait_theme', themeClass);
+      document.body.className = themeClass;
+
+      // Update header buttons
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        if (btn.dataset.theme === themeClass) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      if (settingTheme) settingTheme.value = themeClass;
+
+      // Update dynamic header text depending on theme
+      const brandTitle = document.getElementById('brandTitle');
+      const brandSubtitle = document.getElementById('brandSubtitle');
+      if (themeClass === 'theme-wizard') {
+        brandTitle.textContent = 'Wizarding World';
+        brandSubtitle.textContent = 'Hogwarts • Diagon Alley';
+      } else if (themeClass === 'theme-mcu') {
+        brandTitle.textContent = 'Marvel Outpost';
+        brandSubtitle.textContent = 'Stark Tech • Super Hero Island';
+      } else if (themeClass === 'theme-mario') {
+        brandTitle.textContent = 'Nintendo World';
+        brandSubtitle.textContent = 'Mushroom Kingdom • Mario Kart';
+      } else {
+        brandTitle.textContent = 'Universal Waits';
+        brandSubtitle.textContent = 'Live Park Box Edition';
+      }
+    }
+
+    async function fetchParks() {
+      try {
+        const resp = await fetch('/api/parks');
+        const data = await resp.json();
+        parks = data.parks || [];
+      } catch (err) {
+        console.error('Failed to fetch parks metadata:', err);
+      }
+    }
+
+    async function loadParkData(parkId, isSilent = false) {
+      if (!isSilent) {
+        boxRideTitle.textContent = 'Fetching Universal wait times...';
+        boxWaitNumber.textContent = '--';
+      }
+
+      try {
+        const resp = await fetch(`/api/parks/${parkId}/waits`);
+        const data = await resp.json();
+        currentRides = data.rides || [];
+
+        // Update stats
+        statOpenRides.textContent = data.open_rides ?? '-';
+        statTotalRides.textContent = data.total_rides ?? '-';
+        statAvgWait.textContent = data.avg_wait ?? '-';
+        statMaxWait.textContent = data.max_wait ?? '-';
+
+        updateRotationList();
+
+        if (!isSilent || activeRotationRides.length === 0) {
+          currentRideIndex = 0;
+          displayCurrentRide();
+        }
+
+        renderBoard();
+        document.getElementById('boxLastUpdated').textContent = `UPDATED: ${new Date().toLocaleTimeString()}`;
+      } catch (err) {
+        console.error('Failed to fetch wait times:', err);
+        boxRideTitle.textContent = 'Connection Error';
+        boxWaitNumber.textContent = 'ERR';
+      }
+    }
+
+    function updateRotationList() {
+      if (currentFilter === 'fav') {
+        activeRotationRides = currentRides.filter(r => favorites.includes(r.id));
+      } else if (currentFilter === 'open') {
+        activeRotationRides = currentRides.filter(r => r.is_open);
+      } else {
+        activeRotationRides = [...currentRides];
+      }
+
+      // If favorites empty, fallback to open
+      if (activeRotationRides.length === 0) {
+        activeRotationRides = currentRides.filter(r => r.is_open);
+      }
+      if (activeRotationRides.length === 0) {
+        activeRotationRides = [...currentRides];
+      }
+    }
+
+    function displayCurrentRide() {
+      if (activeRotationRides.length === 0) {
+        boxRideTitle.textContent = 'No attractions available';
+        boxWaitNumber.textContent = '--';
+        boxWaitStatus.textContent = 'CLOSED';
+        boxWaitStatus.className = 'wait-status-pill closed';
+        rideCounter.textContent = '0 / 0';
+        return;
+      }
+
+      if (currentRideIndex >= activeRotationRides.length) {
+        currentRideIndex = 0;
+      }
+
+      const ride = activeRotationRides[currentRideIndex];
+      const park = parks.find(p => p.id == currentParkId);
+
+      boxParkNameDisplay.textContent = park ? park.name.toUpperCase() : 'UNIVERSAL PARKS';
+      boxRideTitle.textContent = ride.name;
+      boxLandTag.textContent = ride.land.toUpperCase();
+
+      if (ride.is_open) {
+        boxWaitNumber.textContent = ride.wait_time;
+        boxWaitUnits.style.display = 'block';
+        boxWaitStatus.textContent = 'STANDBY WAIT';
+        boxWaitStatus.className = 'wait-status-pill';
+      } else {
+        boxWaitNumber.textContent = 'CLOSED';
+        boxWaitUnits.style.display = 'none';
+        boxWaitStatus.textContent = 'TEMPORARILY CLOSED';
+        boxWaitStatus.className = 'wait-status-pill closed';
+      }
+
+      // Favorite star
+      if (favorites.includes(ride.id)) {
+        boxFavBtn.classList.add('is-fav');
+      } else {
+        boxFavBtn.classList.remove('is-fav');
+      }
+
+      rideCounter.textContent = `${currentRideIndex + 1} / ${activeRotationRides.length}`;
+    }
+
+    function startRotation() {
+      clearInterval(rotationTimer);
+      clearInterval(progressInterval);
+      rotationProgress = 0;
+      boxProgressBar.style.width = '0%';
+
+      if (!isPlaying) {
+        boxCycleStatus.textContent = 'CYCLE PAUSED';
+        return;
+      }
+
+      boxCycleStatus.textContent = 'AUTO-CYCLE ON';
+      const intervalMs = 100;
+      const stepPercent = (intervalMs / (rotationSeconds * 1000)) * 100;
+
+      progressInterval = setInterval(() => {
+        if (!isPlaying) return;
+        rotationProgress += stepPercent;
+        boxProgressBar.style.width = `${Math.min(100, rotationProgress)}%`;
+
+        if (rotationProgress >= 100) {
+          nextRide();
+        }
+      }, intervalMs);
+    }
+
+    function nextRide() {
+      if (activeRotationRides.length === 0) return;
+      currentRideIndex = (currentRideIndex + 1) % activeRotationRides.length;
+      displayCurrentRide();
+      rotationProgress = 0;
+      boxProgressBar.style.width = '0%';
+    }
+
+    function prevRide() {
+      if (activeRotationRides.length === 0) return;
+      currentRideIndex = (currentRideIndex - 1 + activeRotationRides.length) % activeRotationRides.length;
+      displayCurrentRide();
+      rotationProgress = 0;
+      boxProgressBar.style.width = '0%';
+    }
+
+    function togglePlayPause() {
+      isPlaying = !isPlaying;
+      btnPlayPause.textContent = isPlaying ? '❚❚' : '▶';
+      startRotation();
+    }
+
+    function toggleFavorite(rideId) {
+      if (favorites.includes(rideId)) {
+        favorites = favorites.filter(id => id !== rideId);
+      } else {
+        favorites.push(rideId);
+      }
+      localStorage.setItem('universal_wait_favorites', JSON.stringify(favorites));
+      updateRotationList();
+      displayCurrentRide();
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const searchTerm = boardSearch.value.toLowerCase().trim();
+      let filtered = currentRides;
+
+      if (searchTerm) {
+        filtered = filtered.filter(r =>
+          r.name.toLowerCase().includes(searchTerm) ||
+          r.land.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      if (currentFilter === 'open') {
+        filtered = filtered.filter(r => r.is_open);
+      } else if (currentFilter === 'fav') {
+        filtered = filtered.filter(r => favorites.includes(r.id));
+      }
+
+      // Group rides by land
+      const landsMap = {};
+      filtered.forEach(r => {
+        if (!landsMap[r.land]) landsMap[r.land] = [];
+        landsMap[r.land].push(r);
+      });
+
+      if (Object.keys(landsMap).length === 0) {
+        boardGridContainer.innerHTML = `
+          <div style="text-align:center; padding: 40px; color: var(--text-muted);">
+            No attractions match current filter or search.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      for (const [land, rides] of Object.entries(landsMap)) {
+        html += `
+          <div class="land-section">
+            <div class="land-title">📍 ${land}</div>
+            <div class="board-grid">
+              ${rides.map(r => `
+                <div class="ride-card" onclick="selectRideForBox(${r.id})">
+                  <div class="card-info">
+                    <div class="card-name">${favorites.includes(r.id) ? '★ ' : ''}${r.name}</div>
+                    <div class="card-land">${r.land}</div>
+                  </div>
+                  <div class="card-wait">
+                    ${r.is_open 
+                      ? `<div class="card-digits">${r.wait_time}</div><div class="card-units">MIN WAIT</div>` 
+                      : `<div class="card-digits closed">CLOSED</div>`}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      boardGridContainer.innerHTML = html;
+    }
+
+    window.selectRideForBox = function(rideId) {
+      const idx = activeRotationRides.findIndex(r => r.id === rideId);
+      if (idx !== -1) {
+        currentRideIndex = idx;
+        displayCurrentRide();
+        switchMode('box');
+      }
+    };
+
+    function switchMode(mode) {
+      if (mode === 'box') {
+        modeBoxBtn.classList.add('active');
+        modeBoardBtn.classList.remove('active');
+        boxView.style.display = 'flex';
+        boardView.style.display = 'none';
+      } else {
+        modeBoardBtn.classList.add('active');
+        modeBoxBtn.classList.remove('active');
+        boxView.style.display = 'none';
+        boardView.style.display = 'block';
+        renderBoard();
+      }
+    }
+
+    function startParkClock() {
+      clearInterval(parkClockInterval);
+      const updateTime = () => {
+        const park = parks.find(p => p.id == currentParkId);
+        let tz = currentTimezone;
+        if (tz === 'park') {
+          tz = park && park.timezone ? park.timezone : 'America/New_York';
+        } else if (tz === 'local') {
+          tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Chicago';
+        }
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        let tzAbbr = '';
+        try {
+          const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' }).formatToParts(now);
+          tzAbbr = parts.find(p => p.type === 'timeZoneName')?.value || '';
+        } catch (e) {
+          tzAbbr = tz;
+        }
+
+        parkClockDisplay.textContent = timeStr;
+        parkTimezoneLabel.textContent = tzAbbr ? `(${tzAbbr})` : '';
+      };
+      updateTime();
+      parkClockInterval = setInterval(updateTime, 1000);
+    }
+
+    function setupEventListeners() {
+      // Sync settings
+      settingTheme.value = currentTheme;
+      settingTimezone.value = currentTimezone;
+      settingSpeed.value = rotationSeconds;
+      settingFilter.value = currentFilter;
+
+      // Theme buttons
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          applyTheme(btn.dataset.theme);
+        });
+      });
+
+      parkClockBtn.addEventListener('click', () => {
+        settingsModal.style.display = 'flex';
+        settingTimezone.focus();
+      });
+
+      parkSelect.addEventListener('change', (e) => {
+        currentParkId = parseInt(e.target.value);
+        loadParkData(currentParkId);
+        startParkClock();
+      });
+
+      modeBoxBtn.addEventListener('click', () => switchMode('box'));
+      modeBoardBtn.addEventListener('click', () => switchMode('board'));
+
+      btnNext.addEventListener('click', nextRide);
+      btnPrev.addEventListener('click', prevRide);
+      btnPlayPause.addEventListener('click', togglePlayPause);
+
+      boxFavBtn.addEventListener('click', () => {
+        const ride = activeRotationRides[currentRideIndex];
+        if (ride) toggleFavorite(ride.id);
+      });
+
+      boardSearch.addEventListener('input', renderBoard);
+
+      document.querySelectorAll('.filter-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          localStorage.setItem('universal_wait_filter', currentFilter);
+          renderBoard();
+          updateRotationList();
+          currentRideIndex = 0;
+          displayCurrentRide();
+        });
+      });
+
+      // Settings Modal
+      settingsBtn.addEventListener('click', () => settingsModal.style.display = 'flex');
+      closeSettingsBtn.addEventListener('click', () => settingsModal.style.display = 'none');
+      settingsModal.addEventListener('click', (e) => {
+        if (e.target === settingsModal) settingsModal.style.display = 'none';
+      });
+
+      settingTheme.addEventListener('change', (e) => {
+        applyTheme(e.target.value);
+      });
+
+      settingTimezone.addEventListener('change', (e) => {
+        currentTimezone = e.target.value;
+        localStorage.setItem('universal_wait_timezone', currentTimezone);
+        startParkClock();
+      });
+
+      settingSpeed.addEventListener('change', (e) => {
+        rotationSeconds = parseInt(e.target.value);
+        localStorage.setItem('universal_wait_speed', rotationSeconds);
+        startRotation();
+      });
+
+      settingFilter.addEventListener('change', (e) => {
+        currentFilter = e.target.value;
+        localStorage.setItem('universal_wait_filter', currentFilter);
+        updateRotationList();
+        currentRideIndex = 0;
+        displayCurrentRide();
+      });
+
+      // Fullscreen
+      fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => alert(err.message));
+          document.body.classList.add('is-fullscreen');
+        } else {
+          document.exitFullscreen();
+          document.body.classList.remove('is-fullscreen');
+        }
+      });
+
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+          document.body.classList.remove('is-fullscreen');
+        }
+      });
+    }
+
+    // Run on startup
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
