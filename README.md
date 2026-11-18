@@ -56,8 +56,31 @@ Accessible at `http://localhost:8089`.
 
 ---
 
+## 📟 Raspberry Pi Kiosk Setup
+
+Want to turn a Raspberry Pi and small display into a dedicated desk clock?
+Check out the step-by-step [Raspberry Pi Kiosk Setup Guide](RASPBERRY_PI_KIOSK_GUIDE.md) for automated booting, cursor hiding, and display scheduling.
+
+---
+
+## 🧪 Testing
+
+Run the automated test suite locally:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+---
+
 ## 🌐 Endpoints
 
 - `GET /api/parks` - List of supported Universal parks and metadata.
 - `GET /api/parks/<id>/waits` - Live wait times and summary stats.
 - `GET /api/health` - Health check status.
+
+---
+
+## 📜 License
+
+MIT License. See [LICENSE](LICENSE) for details.
