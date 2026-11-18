@@ -785,6 +785,125 @@
       font-size: 0.85rem;
     }
 
+    /* ========================================================
+       NIGHT SHOWS & LIVE FEEDS VIEW
+       ======================================================== */
+    .fireworks-view-container {
+      width: 100%;
+      max-width: 1100px;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      margin: 0 auto;
+    }
+
+    .fireworks-header-bar {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      padding: 12px 18px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .fireworks-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fireworks-title-group h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-family: var(--theme-font-head);
+    }
+
+    .fireworks-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #f87171;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .fireworks-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .fireworks-select {
+      background: #1f2937;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .fireworks-player-box {
+      width: 100%;
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 ratio */
+      height: 0;
+      overflow: hidden;
+      border-radius: 14px;
+      background: #000;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--theme-glow);
+      border: 2px solid var(--panel-border);
+    }
+
+    .fireworks-player-box iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .fireworks-info-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 4px 6px;
+    }
+
+    @keyframes universalGlow {
+      0% { box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 14px var(--theme-primary); color: var(--theme-tag-text); }
+      100% { box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+    }
+
+    .mode-btn.showtime {
+      animation: universalGlow 2.5s infinite;
+      border-color: var(--theme-primary);
+    }
+
     /* Fullscreen Kiosk Mode */
     body.is-fullscreen header {
       display: none;
@@ -845,6 +964,7 @@
       <div class="mode-toggle">
         <button id="modeBoxBtn" class="mode-btn active" title="Smart Clock Box Mode">📦 Box</button>
         <button id="modeBoardBtn" class="mode-btn" title="Full Park Grid Mode">📋 Board</button>
+        <button id="modeFireworksBtn" class="mode-btn" title="Nightly Shows & Live Streams">🎆 Shows</button>
       </div>
 
       <!-- Settings & Fullscreen -->
@@ -927,6 +1047,40 @@
       </div>
       <div id="boardGridContainer">
         <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- 3. NIGHT SHOWS & LIVE FEED VIEW -->
+    <div id="fireworksView" class="fireworks-view-container">
+      <div class="fireworks-header-bar">
+        <div class="fireworks-title-group">
+          <h2>🎆 <span id="fireworksShowTitle">CineSational: A Symphonic Spectacular</span></h2>
+          <span class="fireworks-badge"><span class="live-dot" style="background:#ef4444; width:6px; height:6px;"></span> 4K / Live Feed</span>
+        </div>
+        <div class="fireworks-controls">
+          <label for="fireworksFeedSelect" style="font-size: 0.85rem; color: var(--text-muted);">Feed:</label>
+          <select id="fireworksFeedSelect" class="fireworks-select">
+            <option value="ovFP3urx2wE">Universal Studios Florida - CineSational (Lagoon 4K)</option>
+            <option value="rFdD5lMVC08">Islands of Adventure - Hogwarts Always Projections (4K)</option>
+            <option value="f20RAkzTEHE">Epic Universe / Japan - Super Nintendo World at Night (4K)</option>
+            <option value="custom">Custom YouTube Video ID / Live URL...</option>
+          </select>
+          <button id="fireworksReturnBtn" class="mode-btn" style="background: rgba(255, 255, 255, 0.1); color: #fff;">✕ Back</button>
+        </div>
+      </div>
+
+      <div class="fireworks-player-box">
+        <iframe id="fireworksIframe"
+                src=""
+                title="Universal Night Shows Stream"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+        </iframe>
+      </div>
+
+      <div class="fireworks-info-bar">
+        <span id="fireworksParkSubtitle">Universal Studios Nighttime Spectacular</span>
+        <span>Tip: Press ⛶ for full-screen presentation</span>
       </div>
     </div>
   </main>
@@ -1058,6 +1212,13 @@
     const settingSpeed = document.getElementById('settingSpeed');
     const settingFilter = document.getElementById('settingFilter');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const modeFireworksBtn = document.getElementById('modeFireworksBtn');
+    const fireworksView = document.getElementById('fireworksView');
+    const fireworksShowTitle = document.getElementById('fireworksShowTitle');
+    const fireworksParkSubtitle = document.getElementById('fireworksParkSubtitle');
+    const fireworksFeedSelect = document.getElementById('fireworksFeedSelect');
+    const fireworksIframe = document.getElementById('fireworksIframe');
+    const fireworksReturnBtn = document.getElementById('fireworksReturnBtn');
 
     async function init() {
       applyTheme(currentTheme);
@@ -1339,18 +1500,89 @@
       }
     };
 
+    const UNIVERSAL_SHOWS_CONFIG = {
+      65: { id: 'ovFP3urx2wE', title: 'CineSational: A Symphonic Spectacular', park: 'Universal Studios Florida (Lagoon Show)' },
+      64: { id: 'rFdD5lMVC08', title: 'Hogwarts Always Fireworks & Projections', park: "Universal's Islands of Adventure (Wizarding World)" },
+      334: { id: 'f20RAkzTEHE', title: 'Super Nintendo World at Night', park: "Universal's Epic Universe" },
+      284: { id: 'f20RAkzTEHE', title: 'Super Nintendo World at Night', park: 'Universal Studios Japan' },
+      66: { id: 'rFdD5lMVC08', title: 'Hogwarts Castle Nighttime Lights', park: 'Universal Studios Hollywood' },
+      default: { id: 'ovFP3urx2wE', title: 'CineSational: A Symphonic Spectacular', park: 'Universal Parks Worldwide' }
+    };
+
+    function syncFireworksFeedWithPark() {
+      const config = UNIVERSAL_SHOWS_CONFIG[currentParkId] || UNIVERSAL_SHOWS_CONFIG.default;
+      if (fireworksFeedSelect.value !== 'custom') {
+        fireworksFeedSelect.value = config.id;
+      }
+    }
+
+    function loadFireworksFeed(overrideId) {
+      const config = UNIVERSAL_SHOWS_CONFIG[currentParkId] || UNIVERSAL_SHOWS_CONFIG.default;
+      let selectedVal = overrideId || fireworksFeedSelect.value;
+      let videoId = selectedVal;
+
+      if (selectedVal === 'custom') {
+        const input = prompt('Enter YouTube Video ID or URL (e.g. ovFP3urx2wE or live stream URL):');
+        if (input) {
+          const match = input.match(/(?:v=|\/embed\/|youtu\.be\/|\/v\/|^)([a-zA-Z0-9_-]{11})/);
+          videoId = match ? match[1] : input.trim();
+        } else {
+          videoId = config.id;
+          fireworksFeedSelect.value = videoId;
+        }
+      }
+
+      if (videoId === 'ovFP3urx2wE') {
+        fireworksShowTitle.textContent = 'CineSational: A Symphonic Spectacular';
+        fireworksParkSubtitle.textContent = 'Universal Studios Florida (Lagoon Show)';
+      } else if (videoId === 'rFdD5lMVC08') {
+        fireworksShowTitle.textContent = 'Hogwarts Always Fireworks & Projections';
+        fireworksParkSubtitle.textContent = "Universal's Islands of Adventure (Wizarding World)";
+      } else if (videoId === 'f20RAkzTEHE') {
+        fireworksShowTitle.textContent = 'Super Nintendo World at Night';
+        fireworksParkSubtitle.textContent = "Universal's Epic Universe / Japan";
+      } else {
+        fireworksShowTitle.textContent = 'Universal Night Shows Stream';
+        fireworksParkSubtitle.textContent = `Feed ID: ${videoId}`;
+      }
+
+      const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+      if (fireworksIframe.src !== embedUrl) {
+        fireworksIframe.src = embedUrl;
+      }
+    }
+
     function switchMode(mode) {
       if (mode === 'box') {
         modeBoxBtn.classList.add('active');
         modeBoardBtn.classList.remove('active');
+        modeFireworksBtn.classList.remove('active');
         boxView.style.display = 'flex';
         boardView.style.display = 'none';
-      } else {
+        fireworksView.style.display = 'none';
+        if (fireworksIframe.src) {
+          fireworksIframe.src = '';
+        }
+      } else if (mode === 'board') {
         modeBoardBtn.classList.add('active');
         modeBoxBtn.classList.remove('active');
+        modeFireworksBtn.classList.remove('active');
         boxView.style.display = 'none';
         boardView.style.display = 'block';
+        fireworksView.style.display = 'none';
+        if (fireworksIframe.src) {
+          fireworksIframe.src = '';
+        }
         renderBoard();
+      } else if (mode === 'fireworks') {
+        modeFireworksBtn.classList.add('active');
+        modeBoxBtn.classList.remove('active');
+        modeBoardBtn.classList.remove('active');
+        boxView.style.display = 'none';
+        boardView.style.display = 'none';
+        fireworksView.style.display = 'flex';
+        syncFireworksFeedWithPark();
+        loadFireworksFeed();
       }
     }
 
@@ -1377,6 +1609,18 @@
 
         parkClockDisplay.textContent = timeStr;
         parkTimezoneLabel.textContent = tzAbbr ? `(${tzAbbr})` : '';
+
+        // Highlight night shows button if it is showtime (~8:00 PM - 10:30 PM park time)
+        try {
+          const hour = parseInt(now.toLocaleTimeString('en-US', { timeZone: tz, hour: 'numeric', hour12: false }));
+          if (hour >= 20 && hour <= 22) {
+            modeFireworksBtn.classList.add('showtime');
+            modeFireworksBtn.title = '🎆 Showtime! Night show / live feed active';
+          } else {
+            modeFireworksBtn.classList.remove('showtime');
+            modeFireworksBtn.title = 'Nightly Shows & Live Streams';
+          }
+        } catch (e) {}
       };
       updateTime();
       parkClockInterval = setInterval(updateTime, 1000);
@@ -1409,6 +1653,9 @@
 
       modeBoxBtn.addEventListener('click', () => switchMode('box'));
       modeBoardBtn.addEventListener('click', () => switchMode('board'));
+      modeFireworksBtn.addEventListener('click', () => switchMode('fireworks'));
+      fireworksReturnBtn.addEventListener('click', () => switchMode('box'));
+      fireworksFeedSelect.addEventListener('change', () => loadFireworksFeed());
 
       btnNext.addEventListener('click', nextRide);
       btnPrev.addEventListener('click', prevRide);

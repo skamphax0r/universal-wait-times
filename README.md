@@ -19,6 +19,11 @@ Designed for Raspberry Pi kiosks, desk displays, home dashboards, and Proxmox LX
   - Giant LED wait time digits and standby status indicator.
 - **📋 Full Park Tip Board (Board Mode)**:
   - Land-by-land breakdown with instant search and filtering (*Open Only*, *Favorites Only*, *All Rides*).
+- **🎆 Nightly Spectaculars & Live Feed Mode**:
+  - Embedded responsive 16:9 theater feed for nighttime park shows.
+  - Built-in 4K show presets: Universal Studios Florida's *CineSational: A Symphonic Spectacular* (Lagoon drone & fountain show), Islands of Adventure's *Hogwarts Always* (Castle projection & fireworks), and *Super Nintendo World at Night*.
+  - Custom YouTube live broadcast switcher.
+  - Intelligent "Showtime" visual glow indicator during evening show hours (8:00 PM – 10:30 PM park time).
 - **⏱️ Configurable Live Clock**:
   - Live clock header defaulting to **Central Standard Time (CST/CDT)**.
   - One-click timezone switcher (CST, EST, MST, PST, JST, Park Time, Device Time).
