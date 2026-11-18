@@ -77,6 +77,11 @@ class TestUniversalFrontendIntegrity(unittest.TestCase):
             "btnPlayPause",
             "boardView",
             "boardGridContainer",
+            "modeFireworksBtn",
+            "fireworksView",
+            "fireworksFeedSelect",
+            "fireworksIframe",
+            "fireworksReturnBtn",
             "settingsModal",
             "closeSettingsBtn",
             "settingTheme",
@@ -87,6 +92,14 @@ class TestUniversalFrontendIntegrity(unittest.TestCase):
         for element_id in required_ids:
             with self.subTest(element_id=element_id):
                 self.assertIn(element_id, self.parser.element_ids, f"Missing required element #{element_id}")
+
+    def test_night_shows_view_elements(self):
+        """Verify night shows & live feeds view and presets exist."""
+        self.assertIn("modeFireworksBtn", self.parser.element_ids)
+        self.assertIn("fireworksIframe", self.parser.element_ids)
+        self.assertIn("CineSational", self.html_content)
+        self.assertIn("Hogwarts Always", self.html_content)
+        self.assertIn("Super Nintendo World", self.html_content)
 
     def test_requested_themes_present(self):
         """Verify Harry Potter (Wizarding), Marvel (MCU), and Mario themes are present."""
